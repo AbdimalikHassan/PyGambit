@@ -1,0 +1,2 @@
+# PyGambit
+Chess, in Python

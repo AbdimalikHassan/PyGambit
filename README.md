@@ -1,7 +1,7 @@
 # PyGambit
 ## Chess, in Python
 
-This is a documented progression of a chess engine built using python and pygame! 
+This is a semi-documented progression of a chess engine built using python and pygame! 
 I gave a talk on the status of this project as well as key takeaways at Google on 08/24/2021.
 The guidance for this project comes from Edward Sharick of Temple University
 

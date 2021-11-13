@@ -13,10 +13,12 @@ class GameState():
             ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["--", "--", "--", "--", "--", "--", "--", "--"],
+            ["--", "--", "--", "--", "bp", "--", "--", "--"],
             ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp"],
             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
         ]
+        self.moveFunctions = {"p":self.getPawnMoves, "R":self.getRookMoves, "K":self.getKingMoves, 
+                              "Q":self.getQueenMoves, "N":self.getKnightMoves, "B":self.getBishopMoves}
         self.whiteToMove = True
         self.moveLog = []
 
@@ -39,22 +41,59 @@ class GameState():
 
     # All moves, not considering checks
     def getAllPossibleMoves(self):
-        moves = [Move((6,4), (4,4), self.board)]
+        moves = []
         for row in range(len(self.board)):
             for col in range(len(self.board[row])):
                 turn = self.board[row][col][0] # color of the piece, "w" or "b"
                 if (turn == "w" and self.whiteToMove) or (turn == "b" and not self.whiteToMove):
                     piece = self.board[row][col][1]
-                    if piece == "p":
-                        self.getPawnMoves(row, col, moves)
-                    elif piece == "R":
-                        self.getRookMoves(row, col, moves)
+                    self.moveFunctions[piece](row, col, moves) # python doesn't have a switch statement
+
         return moves
 
     def getPawnMoves(self, row, col, moves):
-        pass
+        if self.whiteToMove: # white pawn moves
+            # Pawn pushes
+            if self.board[row-1][col] == "--": # 1 tile pawn push
+                moves.append(Move((row, col), (row-1, col), self.board))
+                # Check 2 spaces ahead only after checking one space ahead!
+                if self.board[row-2][col] == "--" and row == 6: # 2 tile pawn push can only occur on 2nd rank for white pawns
+                    moves.append(Move((row, col),(row -2, col), self.board))
+            # Pawn captures
+            if col - 1 >= 0: # captures to the left (left being col 0)
+                if self.board[row-1][col-1][0] == "b": # enemy piece to capture
+                    moves.append(Move((row, col), (row-1, col-1), self.board))
+            if col + 1 < 8: # captures to the right (right being col 7)
+                if self.board[row-1][col+1][0] == "b": # enemy piece to capture
+                    moves.append(Move((row, col), (row-1, col+1), self.board))                    
+        else: # black pawn moves
+            # Pawn pushes
+            if self.board[row+1][col] == "--": # 1 tile pawn push
+                moves.append(Move((row, col), (row+1, col), self.board))
+            # Check 2 spaces ahead only after checking one space ahead!
+                if self.board[row+2][col] == "--" and row == 1: # 2 tile pawn push can only occur on 7th rank for black pawns
+                    moves.append(Move((row, col),(row+2, col), self.board))
+            # Pawn captures
+            if col - 1 >= 0: # captures to the left (left being col 0)
+                if self.board[row+1][col-1][0] == "w": # enemy piece to capture
+                    moves.append(Move((row, col), (row+1, col-1), self.board))
+            if col + 1 < 8: # captures to the right (right being col 7)
+                if self.board[row+1][col+1][0] == "w": # enemy piece to capture 
+                    moves.append(Move((row, col), (row+1, col+1), self.board))
 
     def getRookMoves(self, row, col, moves):
+        pass
+
+    def getKingMoves(self, row, col, moves):
+        pass
+    
+    def getQueenMoves(self, row, col, moves):
+        pass
+
+    def getKnightMoves(self, row, col, moves):
+        pass
+
+    def getBishopMoves(self, row, col, moves):
         pass
 
 class Move():

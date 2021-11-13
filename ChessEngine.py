@@ -13,7 +13,7 @@ class GameState():
             ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["--", "--", "--", "--", "bp", "--", "--", "--"],
+            ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp"],
             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
         ]
@@ -80,21 +80,71 @@ class GameState():
             if col + 1 < 8: # captures to the right (right being col 7)
                 if self.board[row+1][col+1][0] == "w": # enemy piece to capture 
                     moves.append(Move((row, col), (row+1, col+1), self.board))
+                    # Add pawn promotions later
 
     def getRookMoves(self, row, col, moves):
-        pass
+        directions = ((-1,0), (1,0), (0,-1), (0,1))
+        enemyColor = "b" if self.whiteToMove else "w"
+        for direction in directions:
+            for i in range(1,8): # only need to check a max of 7 tiles in a given direction
+                endRow = row + direction[0] * i
+                endCol = col + direction[1] * i
+                if(0 < endRow < 8 and 0 < endCol < 8): # check if spot is on the board
+                    endPiece = self.board[endRow][endCol]
+                    if endPiece == "--":
+                        moves.append(Move((row, col), (endRow, endCol), self.board))
+                    elif endPiece[0] == enemyColor:
+                        moves.append(Move((row, col), (endRow, endCol), self.board))
+                        break # quit searching in this direction, can't jump over pieces
+                    else:
+                        break
+                else: # off board
+                    break
 
     def getKingMoves(self, row, col, moves):
-        pass
+        kingMoves = ((-1,-1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1))
+        allyColor = "w" if self.whiteToMove else "b"
+        for i in range(8):
+            endRow = row + kingMoves[i][0]
+            endCol = col + kingMoves[i][1]
+            if 0 <= endRow < 8 and 0 <= endCol < 8:
+                endPiece = self.board[endRow][endCol]
+                if endPiece[0] != allyColor:# if the spot you're considering isn't already occupied by an ally
+                    moves.append(Move((row, col), (endRow, endCol), self.board))
     
     def getQueenMoves(self, row, col, moves):
-        pass
+        self.getRookMoves(row, col, moves)
+        self.getBishopMoves(row, col, moves)
 
     def getKnightMoves(self, row, col, moves):
-        pass
+        knightMoves = ((-2, -1), (-2, 1), (-1, -2), (-1, 2), (1, -2), (1, 2), (2, -1), (2, 1))
+        allyColor = "w" if self.whiteToMove else "b"
+        for knightMove in knightMoves:
+            endRow = row + knightMove[0]
+            endCol = col + knightMove[1]
+            if(0 <= endRow < 8 and 0 <= endCol < 8):
+                endPiece = self.board[endRow][endCol]
+                if endPiece[0] != allyColor:
+                    moves.append(Move((row, col), (endRow, endCol), self.board))
 
     def getBishopMoves(self, row, col, moves):
-        pass
+        directions = ((-1,-1), (-1,1), (1,-1), (1,1))
+        enemyColor = "b" if self.whiteToMove else "w"
+        for direction in directions:
+            for i in range(1,8): # only need to check a max of 7 tiles in a given direction
+                endRow = row + direction[0] * i
+                endCol = col + direction[1] * i
+                if(0 <= endRow < 8 and 0 <= endCol < 8): # check if spot is on the board
+                    endPiece = self.board[endRow][endCol]
+                    if endPiece == "--":
+                        moves.append(Move((row, col), (endRow, endCol), self.board))
+                    elif endPiece[0] == enemyColor:
+                        moves.append(Move((row, col), (endRow, endCol), self.board))
+                        break # quit searching in this direction, can't jump over pieces
+                    else:
+                        break
+                else: # off board
+                    break
 
 class Move():
     ranksToRows = {"1":7, "2":6, "3":5, "4":4, "5":3, "6":2, "7":1, "8":0}
